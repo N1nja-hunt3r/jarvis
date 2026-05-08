@@ -2,6 +2,7 @@ import pyttsx3
 import speech_recognition as sr
 import eel
 import time
+
 def speak(text):
     text = str(text)
     engine = pyttsx3.init('sapi5')
@@ -15,29 +16,35 @@ def speak(text):
 
 
 def takecommand():
-
-    r = sr.Recognizer()
-
-    with sr.Microphone() as source:
-        print('listening....')
-        eel.DisplayMessage('listening....')
-        r.pause_threshold = 1
-        r.adjust_for_ambient_noise(source)
-        
-        audio = r.listen(source, 10, 6)
-
     try:
-        print('recognizing')
-        eel.DisplayMessage('recognizing....')
-        query = r.recognize_google(audio, language='en-in')
-        print(f"user said: {query}")
-        eel.DisplayMessage(query)
-        time.sleep(2)
-       
-    except Exception as e:
-        return ""
+        r = sr.Recognizer()
+
+        with sr.Microphone() as source:
+            print('listening....')
+            eel.DisplayMessage('listening....')
+            r.pause_threshold = 1
+            r.adjust_for_ambient_noise(source)
+            
+            audio = r.listen(source, 10, 6)
+
+        try:
+            print('recognizing')
+            eel.DisplayMessage('recognizing....')
+            query = r.recognize_google(audio, language='en-in')
+            print(f"user said: {query}")
+            eel.DisplayMessage(query)
+            time.sleep(2)
+           
+        except Exception as e:
+            return ""
+        
+        return query.lower()
     
-    return query.lower()
+    except AttributeError as e:
+        print(f"PyAudio not installed: {e}")
+        print("Voice input disabled. Please type commands instead.")
+        eel.DisplayMessage("Voice input not available. Use text mode.")
+        return ""
 
 @eel.expose
 def allCommands(message=1):
@@ -49,6 +56,10 @@ def allCommands(message=1):
     else:
         query = message
         eel.senderText(query)
+    
+    if not query:  # If no voice input, skip processing
+        return
+    
     try:
 
         if "open" in query:
@@ -92,7 +103,7 @@ def allCommands(message=1):
         else:
             from engine.features import chatBot
             chatBot(query)
-    except:
-        print("error")
+    except Exception as e:
+        print(f"Error processing command: {e}")
     
     eel.ShowHood()
