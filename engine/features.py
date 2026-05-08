@@ -1,5 +1,5 @@
 import os
-from pipes import quote
+from shlex import quote
 import re
 import sqlite3
 import struct
@@ -8,7 +8,7 @@ import time
 import webbrowser
 from playsound import playsound
 import eel
-import pyaudio
+# import pyaudio  # Commented out - requires C++ build tools. Will be imported only when hotword() is called
 import pyautogui
 from engine.command import speak
 
@@ -75,6 +75,7 @@ def PlayYoutube(query):
 
 
 def hotword():
+    import pyaudio  # Import only when hotword is called
     porcupine=None
     paud=None
     audio_stream=None
